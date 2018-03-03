@@ -47,11 +47,18 @@ namespace DirectoryWalker
             }
 
             app.UseStaticFiles();
+           
             app.UseMvc(routes =>
             {
+                // TODO: what about deletion of default route
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "home",
+                    template: "{*article}",
+                    defaults: new { controller = "Home", action = "GetString"});
             });
 
             ConfigureLogger(loggerFactory);
