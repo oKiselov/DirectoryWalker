@@ -24,7 +24,7 @@ namespace DirectoryWalker
         private static void LoadConfiguration(WebHostBuilderContext webHostBuilderContext, IConfigurationBuilder configurationBuilder)
         {
             var operatingSystem = System.Environment.GetEnvironmentVariable("OPERATING_SYSTEM");
-            var configurationFilesLocation = "ConfiguarionFiles";
+            var configurationFilesLocation = "ConfigurationFiles";
 
             configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile(Path.Combine(configurationFilesLocation, "appsettings.json"), false, true)

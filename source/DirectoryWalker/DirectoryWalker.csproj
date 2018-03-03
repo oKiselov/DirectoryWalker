@@ -22,4 +22,13 @@
     <ProjectReference Include="..\..\libraries\DirectoryWalker.Database\DirectoryWalker.Database.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="ConfigurationFiles\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="ConfigurationFiles\appsettings.Windows.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
