@@ -1,15 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DirectoryWalker.Models;
+using DirectoryWalker.Database.Repositories.Interfaces;
 
 namespace DirectoryWalker.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ITreeReadRepository treeReadRepository;
+
+        public HomeController(ITreeReadRepository treeReadRepository)
+        {
+            this.treeReadRepository = treeReadRepository;
+        }
+        
         public IActionResult Index()
         {
             return View();
@@ -34,11 +39,24 @@ namespace DirectoryWalker.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        //[HttpGet]
+        //public IActionResult GetString(string article)
+        //{
+        //    var a = article;
+
+        //    return View();
+        //}
+
         [HttpGet]
-        public IActionResult GetString(string article)
+        public async Task GetString(string article)
         {
             var a = article;
-            return View();
+
+            var b = this.treeReadRepository.Val;
+
+            var result = await this.treeReadRepository.CheckIfPathExists(new string[] { "Creating Digddital Images", "Resources", "Primary Sources" });
+
+            return;
         }
     }
 }

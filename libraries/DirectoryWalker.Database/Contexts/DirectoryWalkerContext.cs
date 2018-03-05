@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using DirectoryWalker.Database.Entities;
+using DirectoryWalker.Database.Entities.Mapping;
+using DirectoryWalker.Database.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryWalker.Database.Contexts
@@ -18,7 +20,7 @@ namespace DirectoryWalker.Database.Contexts
 
         private static void SetDirectoryWalkerSchema(ModelBuilder modelBuilder)
         {
-            // TODO: schemas mapping
+            modelBuilder.MapEntity<TreeNode, TreeNodeMap>();
         }
     }
 }
