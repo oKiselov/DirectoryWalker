@@ -25,8 +25,6 @@ namespace DirectoryWalker
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddEntityFrameworkNpgsql();
-            services.AddDbContext<DirectoryWalkerContext>(
-                options => options.UseNpgsql(configuration["Data:ConnectionString"]));
             services.AddMvc();
             services.AddMemoryCache();
 
@@ -49,15 +47,14 @@ namespace DirectoryWalker
            
             app.UseMvc(routes =>
             {
-                // TODO: what about deletion of default route
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
 
                 routes.MapRoute(
-                    name: "home",
-                    template: "{*article}",
-                    defaults: new { controller = "Home", action = "GetString"});
+                    name: "hierarchy",
+                    template: "{*enteredPath}",
+                    defaults: new { controller = "Home", action = "BrowseHierarchyTree" });
             });
 
             ConfigureLogger(loggerFactory);

@@ -3,34 +3,22 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DirectoryWalker.Models;
 using DirectoryWalker.Database.Repositories.Interfaces;
+using DirectoryWalker.Services.Interfaces;
+using System.Linq;
 
 namespace DirectoryWalker.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ITreeReadRepository treeReadRepository;
+        private readonly IHierarchyService hierarchyService;
 
-        public HomeController(ITreeReadRepository treeReadRepository)
+        public HomeController(IHierarchyService hierarchyService)
         {
-            this.treeReadRepository = treeReadRepository;
+            this.hierarchyService = hierarchyService;
         }
         
         public IActionResult Index()
         {
-            return View();
-        }
-
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
             return View();
         }
 
@@ -39,24 +27,26 @@ namespace DirectoryWalker.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        //[HttpGet]
-        //public IActionResult GetString(string article)
-        //{
-        //    var a = article;
-
-        //    return View();
-        //}
-
         [HttpGet]
-        public async Task GetString(string article)
+        public async void BrowseHierarchyTree(string enteredPath)
         {
-            var a = article;
+            var filteredPathes = hierarchyService.GetFilteredNodesNames(enteredPath);
+            if (!filteredPathes.Any())
+            {
+                // return view with error
+                var a = 5;
+            }
 
-            var b = this.treeReadRepository.Val;
+            var searchedNode = await hierarchyService.GetNodeByCombinedPath(filteredPathes);
+            if (hierarchyService.IsFoundNodeEmpty(searchedNode))
+            {
+                //return view that no such path 
+                var a = 5;
+            }
 
-            var result = await this.treeReadRepository.CheckIfPathExists(new string[] { "Creating Digital Imeeages", "Resources", "Primary Sources" });
+            var childrenOfNode = await hierarchyService.GetChildrenNodes(searchedNode);
 
-            return;
+            RedirectToAction("BrowseHierarchyTree");
         }
     }
 }

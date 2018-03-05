@@ -4,7 +4,9 @@ using DirectoryWalker.Database.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DirectoryWalker.Database.Repositories
@@ -12,36 +14,25 @@ namespace DirectoryWalker.Database.Repositories
     public class TreeReadRepository : ITreeReadRepository
     {
         private readonly DbSet<TreeNode> dbSet;
-        private readonly DirectoryWalkerContext dbContext;
 
-        public TreeReadRepository(DirectoryWalkerContext dbContext)
+        public TreeReadRepository(DbContext dbContext)
         {
-            this.dbContext = dbContext;
-            dbSet = dbContext.Set<TreeNode>();
-            Val = 5;
+            this.dbSet = dbContext.Set<TreeNode>();
         }
 
-        public int Val { get ; set; }
-
-        public async Task<bool> CheckIfPathExists(IEnumerable<string> combinedPath)
+        public async Task<TreeNode> GetNodeByCombinedPath(IEnumerable<string> combinedPath)
         {
-
-            using(var command = dbContext.Database.GetDbConnection().CreateCommand())
-            {
-                command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = "SELECT * FROM tree.check_pathes(@array_pathes)";
-                command.Parameters.Add(new NpgsqlParameter("array_pathes", NpgsqlDbType.Array | NpgsqlDbType.Text) { Value = (object)combinedPath });
-                if (command.Connection.State == System.Data.ConnectionState.Closed)
-                    command.Connection.Open();
-                var res = (bool)await command.ExecuteScalarAsync();
-
-            }
-
             var collectionOfPathes = new NpgsqlParameter("array_pathes", NpgsqlDbType.Array | NpgsqlDbType.Text) { Value = (object)combinedPath };
-
-            var a = await dbSet.FromSql("SELECT * FROM tree.check_pathes(@array_pathes)", collectionOfPathes).FirstOrDefaultAsync();
-
-            return await dbSet.FromSql("SELECT * FROM tree.check_pathes(@array_pathes)", collectionOfPathes).AnyAsync();
+            return dbSet.FromSql("SELECT * FROM tree.get_node_by_combined_path(@array_pathes)", collectionOfPathes).First();
         }
+
+        public async Task<IEnumerable<TreeNode>> GetNodesChildren(TreeNode treeNode)
+        {
+            return dbSet
+                .Where(node => node.ParentId == treeNode.Id)
+                .Take(treeNode.AmountOfChildren)
+                .ToList();
+        }
+
     }
 }

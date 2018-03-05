@@ -27,7 +27,7 @@ VALUES
 
 -- create function for checking current node of tree for existing of searched child with name 'searched_name'
 -- searched_id - id of current node, nodes_limit - amount of children of current node
-CREATE OR REPLACE FUNCTION tree.if_node_contains(IN searched_id bigint, IN searched_name text, IN nodes_limit integer)
+CREATE OR REPLACE FUNCTION tree.if_node_contains_item(IN searched_id bigint, IN searched_name text, IN nodes_limit integer)
 RETURNS TABLE(_item_id bigint, _parent_id bigint, _item_name text, _nodes_amount integer) AS
 $BODY$
 
@@ -43,16 +43,22 @@ WHERE item_name = searched_name
 LIMIT 1;
 
 END;
-$BODY$ LANGUAGE plpgsql VOLATILE;
+$BODY$ LANGUAGE plpgsql;
 
 
 -- create function for checking full path from the head to the searched child of the tree
 -- array_pathes - array of nodes
-CREATE OR REPLACE FUNCTION tree.check_pathes(array_pathes text[])
-  RETURNS boolean AS
-$BODY$
-DECLARE found_row tree.tree%ROWTYPE;
+CREATE TYPE node_type 
+AS (item_id bigint,
+  parent_id bigint,
+  item_name text,
+  nodes_amount integer);
 
+
+CREATE OR REPLACE FUNCTION tree.get_node_by_combined_path(array_pathes text[])
+  RETURNS node_type AS
+$BODY$
+DECLARE found_row node_type%ROWTYPE;
 BEGIN
 
 SELECT * INTO found_row FROM tree.tree
@@ -63,12 +69,18 @@ LIMIT 1;
 FOR i IN array_lower(array_pathes, 1) .. array_upper(array_pathes, 1)
 LOOP
 
-SELECT * INTO found_row FROM tree.if_node_contains(found_row.item_id, array_pathes[i], found_row.nodes_amount);
+SELECT * INTO found_row FROM tree.if_node_contains_item(found_row.item_id, array_pathes[i], found_row.nodes_amount);
 
-IF NOT FOUND THEN RETURN false;
+IF NOT FOUND THEN 
+
+found_row.item_id := 0;
+found_row.parent_id := 0;
+found_row.item_name := '';
+found_row.nodes_amount := 0;
+
+RETURN found_row;
 END IF;
 END LOOP;
-RETURN true;
+RETURN found_row;
 END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE
+$BODY$ LANGUAGE plpgsql;

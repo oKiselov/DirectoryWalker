@@ -20,7 +20,7 @@ namespace DirectoryWalker.Infrastructure
         public void RegisterModules(IEnumerable<AssemblyName> assemblyNames)
         {
             var assemblies = assemblyNames
-                .Where(name => name.Name.StartsWith("DirectoryWalker."))
+                .Where(name => name.Name.StartsWith("DirectoryWalker"))
                 .Distinct()
                 .Select(Assembly.Load);
 
