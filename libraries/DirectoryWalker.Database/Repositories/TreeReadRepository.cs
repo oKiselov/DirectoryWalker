@@ -26,6 +26,17 @@ namespace DirectoryWalker.Database.Repositories
         public async Task<bool> CheckIfPathExists(IEnumerable<string> combinedPath)
         {
 
+            using(var command = dbContext.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = "SELECT * FROM tree.check_pathes(@array_pathes)";
+                command.Parameters.Add(new NpgsqlParameter("array_pathes", NpgsqlDbType.Array | NpgsqlDbType.Text) { Value = (object)combinedPath });
+                if (command.Connection.State == System.Data.ConnectionState.Closed)
+                    command.Connection.Open();
+                var res = (bool)await command.ExecuteScalarAsync();
+
+            }
+
             var collectionOfPathes = new NpgsqlParameter("array_pathes", NpgsqlDbType.Array | NpgsqlDbType.Text) { Value = (object)combinedPath };
 
             var a = await dbSet.FromSql("SELECT * FROM tree.check_pathes(@array_pathes)", collectionOfPathes).FirstOrDefaultAsync();

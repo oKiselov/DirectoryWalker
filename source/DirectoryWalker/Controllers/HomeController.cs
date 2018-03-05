@@ -54,7 +54,7 @@ namespace DirectoryWalker.Controllers
 
             var b = this.treeReadRepository.Val;
 
-            var result = await this.treeReadRepository.CheckIfPathExists(new string[] { "Creating Digddital Images", "Resources", "Primary Sources" });
+            var result = await this.treeReadRepository.CheckIfPathExists(new string[] { "Creating Digital Imeeages", "Resources", "Primary Sources" });
 
             return;
         }

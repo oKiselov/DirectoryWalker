@@ -48,16 +48,10 @@ $BODY$ LANGUAGE plpgsql VOLATILE;
 
 -- create function for checking full path from the head to the searched child of the tree
 -- array_pathes - array of nodes
-CREATE TYPE return_type 
-AS (item_id bigint,
-  parent_id bigint,
-  item_name text,
-  nodes_amount integer);
-
 CREATE OR REPLACE FUNCTION tree.check_pathes(array_pathes text[])
-  RETURNS return_type AS
+  RETURNS boolean AS
 $BODY$
-DECLARE found_row return_type%ROWTYPE;
+DECLARE found_row tree.tree%ROWTYPE;
 
 BEGIN
 
@@ -71,10 +65,10 @@ LOOP
 
 SELECT * INTO found_row FROM tree.if_node_contains(found_row.item_id, array_pathes[i], found_row.nodes_amount);
 
-IF NOT FOUND THEN RETURN null;
+IF NOT FOUND THEN RETURN false;
 END IF;
 END LOOP;
-RETURN found_row;
+RETURN true;
 END;
 $BODY$
-  LANGUAGE plpgsql VOLATILE;
+  LANGUAGE plpgsql VOLATILE
