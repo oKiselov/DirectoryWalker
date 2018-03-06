@@ -5,15 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="docker-compose.yml" />
-    <None Remove="Dockerfile" />
+    <None Update="wwwroot\**\*;Views\**\*;.dockerignore;docker-compose.yml;Dockerfile">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Dockerfile" />
-    <Compile Include="docker-compose.yml" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.2" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.1" />

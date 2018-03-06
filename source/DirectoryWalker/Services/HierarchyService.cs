@@ -1,5 +1,6 @@
 ﻿using DirectoryWalker.Database.Entities;
 using DirectoryWalker.Database.Repositories.Interfaces;
+using DirectoryWalker.Models;
 using DirectoryWalker.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -42,9 +43,9 @@ namespace DirectoryWalker.Services
             return await this.treeReadRepository.GetNodeByCombinedPath(combinedPath);
         }
 
-        public IEnumerable<string> GetLinksToChildren(string enteredPath, IEnumerable<string> nodes)
+        public IEnumerable<LinkToChild> GetLinksToChildren(string currentPath, IEnumerable<string> nodes)
         {
-            return nodes.Select(node => enteredPath+"/"+node);
+            return nodes.Select(node => new LinkToChild { Name = node, FullPath = currentPath+"/"+node});
         }
 
         public bool IsFoundNodeEmpty(TreeNode treeNode)
