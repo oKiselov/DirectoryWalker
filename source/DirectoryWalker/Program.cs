@@ -23,7 +23,7 @@ namespace DirectoryWalker
 
         private static void LoadConfiguration(WebHostBuilderContext webHostBuilderContext, IConfigurationBuilder configurationBuilder)
         {
-            var operatingSystem = System.Environment.GetEnvironmentVariable("OPERATING_SYSTEM");
+            var operatingSystem = System.Environment.GetEnvironmentVariable("DIRECTORYWALKER_OS");
             var configurationFilesLocation = "ConfigurationFiles";
 
             configurationBuilder.SetBasePath(Directory.GetCurrentDirectory())

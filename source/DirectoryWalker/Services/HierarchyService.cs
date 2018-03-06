@@ -1,6 +1,7 @@
 ﻿using DirectoryWalker.Database.Entities;
 using DirectoryWalker.Database.Repositories.Interfaces;
 using DirectoryWalker.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,18 @@ namespace DirectoryWalker.Services
     public class HierarchyService : IHierarchyService
     {
         private readonly ITreeReadRepository treeReadRepository;
+        private readonly ILogger logger;
 
-        public HierarchyService(ITreeReadRepository treeReadRepository)
+        public HierarchyService(ITreeReadRepository treeReadRepository,
+            ILogger<HierarchyService> logger)
         {
             this.treeReadRepository = treeReadRepository;
+            this.logger = logger;
+        }
+
+        public string GetRootNode()
+        {
+            return this.treeReadRepository.GetRootNode().Name;
         }
 
         public IEnumerable<string> GetFilteredNodesNames(string path)
@@ -31,6 +40,11 @@ namespace DirectoryWalker.Services
         public async Task<TreeNode> GetNodeByCombinedPath(IEnumerable<string> combinedPath)
         {
             return await this.treeReadRepository.GetNodeByCombinedPath(combinedPath);
+        }
+
+        public IEnumerable<string> GetLinksToChildren(string enteredPath, IEnumerable<string> nodes)
+        {
+            return nodes.Select(node => enteredPath+"/"+node);
         }
 
         public bool IsFoundNodeEmpty(TreeNode treeNode)

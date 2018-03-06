@@ -9,13 +9,13 @@ CREATE TABLE tree.tree
   CONSTRAINT parent_id_fk FOREIGN KEY (parent_id)
       REFERENCES tree.tree (item_id) MATCH SIMPLE
       ON UPDATE CASCADE ON DELETE CASCADE
-)
+);
 
 
 -- populate the table 
 INSERT INTO tree.tree (parent_id, item_name, nodes_amount) 
 VALUES 
-(1, 'Creating Digital Images', 3),
+(1, 'Creating Digital Images', 4),
 (1, 'Resources',2),
 (1, 'Evidence',0),
 (1, 'Graphic Products',2),

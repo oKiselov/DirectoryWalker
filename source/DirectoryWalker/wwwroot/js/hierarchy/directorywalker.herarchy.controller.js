@@ -9,7 +9,7 @@
 
     function hierarchyController($scope) {
 
-        $scope.messages = [1,3,5,7,9];
+        // here should be javascript code in case of application grows
 
     }
 })();

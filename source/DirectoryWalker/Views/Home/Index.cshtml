@@ -2,25 +2,11 @@
     ViewData["Title"] = "Hierarchy Tree";
 }
 
-@section Scripts {
-    <environment names="Development">
-        <script src="~/js/hierarchy/directorywalker.herarchy.controller.js"></script>
-    </environment>
-}
-
-<div class="container-fluid" ng-app="directorywalker.hierarchy" ng-controller="hierarchyController">
+<div class="container-fluid">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>{{CategoryId}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="category in messages">
-                    <td>{{ category }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <h2>Let's enumerate hierarchy tree with directories. Here is the root directory:</h2>
+            <p>
+                <a href="@ViewBag.RootPath">@ViewBag.RootPath</a>
+            </p>
     </div>
 </div>

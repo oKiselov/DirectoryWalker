@@ -20,6 +20,13 @@ namespace DirectoryWalker.Database.Repositories
             this.dbSet = dbContext.Set<TreeNode>();
         }
 
+        public TreeNode GetRootNode()
+        {
+            return dbSet
+                .OrderBy(node=>node.Id)
+                .FirstOrDefault();
+        }
+
         public async Task<TreeNode> GetNodeByCombinedPath(IEnumerable<string> combinedPath)
         {
             var collectionOfPathes = new NpgsqlParameter("array_pathes", NpgsqlDbType.Array | NpgsqlDbType.Text) { Value = (object)combinedPath };
@@ -30,9 +37,10 @@ namespace DirectoryWalker.Database.Repositories
         {
             return dbSet
                 .Where(node => node.ParentId == treeNode.Id)
+                .Where(node=> node.ParentId != node.Id)
+                .OrderBy(node=>node.Id)
                 .Take(treeNode.AmountOfChildren)
                 .ToList();
         }
-
     }
 }
