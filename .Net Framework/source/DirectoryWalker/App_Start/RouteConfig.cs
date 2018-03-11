@@ -13,10 +13,17 @@ namespace DirectoryWalker
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            //routes.MapRoute(
+            //    name: "notdefault", 
+            //    url: "{controller}/{action}/{id}",
+            //    defaults: new { controller = "Home", action = "CustomError", id =  UrlParameter.Optional});
+
             routes.MapRoute(
-                name: "Hierarchy",
+                name: "Default",
                 url: "{*enteredPath}",
                 defaults: new { controller = "Home", action = "BrowseHierarchyTree" });
+
+
         }
     }
 }

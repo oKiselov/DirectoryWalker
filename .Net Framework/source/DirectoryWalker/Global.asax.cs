@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DirectoryWalker.Bootstrappers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -12,6 +13,7 @@ namespace DirectoryWalker
     {
         protected void Application_Start()
         {
+            Bootstrapper.ConfigureContainer();
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
