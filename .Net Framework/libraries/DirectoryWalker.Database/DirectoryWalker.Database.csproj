@@ -58,6 +58,7 @@
     <Compile Include="Contexts\DirectoryWalkerContext.cs" />
     <Compile Include="Entities\Mapping\TreeNodeMap.cs" />
     <Compile Include="Entities\TreeNode.cs" />
+    <Compile Include="Helpers\DataTableHelper.cs" />
     <Compile Include="Modules\DatabaseModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\Interfaces\ITreeRepository.cs" />

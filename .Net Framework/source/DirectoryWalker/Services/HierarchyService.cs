@@ -4,6 +4,7 @@ using DirectoryWalker.Models;
 using DirectoryWalker.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,10 +35,10 @@ namespace DirectoryWalker.Services
             return await this.treeRepository.GetNodesChildren(parentNode);
         }
 
-        //public async Task<TreeNode> GetNodeByCombinedPath(IEnumerable<string> combinedPath)
-        //{
-        //    return await this.treeRepository.GetNodeByCombinedPath(combinedPath);
-        //}
+        public async Task<TreeNode> GetNodeByCombinedPath(IList<string> combinedPath)
+        {
+            return await this.treeRepository.GetNodeByCombinedPath(combinedPath);
+        }
 
         public IEnumerable<LinkToChild> GetLinksToChildren(string currentPath, IEnumerable<string> nodes)
         {

@@ -9,7 +9,7 @@ namespace DirectoryWalker.Services.Interfaces
     {
         string GetRootNode();
         IEnumerable<string> GetFilteredNodesNames(string path);
-        //Task<TreeNode> GetNodeByCombinedPath(IEnumerable<string> combinedPath);
+        Task<TreeNode> GetNodeByCombinedPath(IList<string> combinedPath);
         Task<IEnumerable<TreeNode>> GetChildrenNodes(TreeNode parentNode);
         bool IsFoundNodeEmpty(TreeNode treeNode);
         IEnumerable<LinkToChild> GetLinksToChildren(string enteredPath, IEnumerable<string> nodes);

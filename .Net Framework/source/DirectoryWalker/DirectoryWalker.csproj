@@ -204,6 +204,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\CustomError.cshtml" />
+    <Content Include="Views\Home\BrowseHierarchyTree.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

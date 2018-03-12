@@ -1,11 +1,9 @@
 ﻿using DirectoryWalker.Services.Interfaces;
+using DirectoryWalker.Models;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
-
-/*
- connection to DB 169.254.43.208:1433
- 127.0.0.1:1433
- login adminsql, password adminsql
- */
+using System.Collections.Generic;
 
 namespace DirectoryWalker.Controllers
 {
@@ -18,49 +16,40 @@ namespace DirectoryWalker.Controllers
             this.hierarchyService = hierarchyService;
         }
 
-        public ActionResult BrowseHierarchyTree(string enteredPath)
+        public async Task<ActionResult> BrowseHierarchyTree(string enteredPath)
         {
+            ViewData["Home"] = HttpContext.Request.Url.Scheme + "://" + HttpContext.Request.Url.Authority;
+            // checking for default url 
             if (string.IsNullOrEmpty(enteredPath))
             {
-                //var rootPath = this.hierarchyService.GetRootNode();
-                ViewBag.Message = "There are incompatible characters in current path";
-                //return RedirectToAction(nameof(HomeController.CustomError), "Home", new { message = "There are incompatible characters in current path" });
+                ViewBag.RootPath = this.hierarchyService.GetRootNode();
+                return View("Index");
+            }
 
+            // check if the path is not valid
+            var filteredPathes = hierarchyService.GetFilteredNodesNames(enteredPath);
+            if (!filteredPathes.Any())
+            {
+                ViewBag.Message = "There are incompatible characters in current path";
                 return View("CustomError");
             }
 
-            //// check if the path is not valid
-            //var filteredPathes = hierarchyService.GetFilteredNodesNames(enteredPath);
-            //if (!filteredPathes.Any())
-            //{
-            //    return RedirectToAction(nameof(HomeController.CustomError), "Home", new { message = "There are incompatible characters in current path" });
-            //}
+            // check if current node exists
+            var searchedNode = await hierarchyService.GetNodeByCombinedPath(filteredPathes.ToList());
+            if (hierarchyService.IsFoundNodeEmpty(searchedNode))
+            {
+                ViewBag.Message = "There is no node with current path";
+                return View("CustomError");
+            }
 
-            //// check if current node exists
-            //var searchedNode = await hierarchyService.GetNodeByCombinedPath(filteredPathes);
-            //if (hierarchyService.IsFoundNodeEmpty(searchedNode))
-            //{
-            //    return RedirectToAction(nameof(HomeController.CustomError), "Home", new { message = "There is no node with current path" });
-            //}
+            // check and returns all child nodes for current node
+            var childrenOfNode = await hierarchyService.GetChildrenNodes(searchedNode);
+            List<LinkToChild> linksToChildren = hierarchyService.GetLinksToChildren(HttpContext.Request.Path, childrenOfNode.Select(node => node.Name)).ToList();
 
-            //// check and returns all child nodes for current node
-            //var childrenOfNode = await hierarchyService.GetChildrenNodes(searchedNode);
-            //var linksToChildren = hierarchyService.GetLinksToChildren(HttpContext.Request.Path, childrenOfNode.Select(node => node.Name));
+            // data for links on cshtml side
+            ViewData["CurrentDirectory"] = enteredPath;
+            ViewData["LinksToChildren"] = linksToChildren;
 
-            //// data for links on cshtml side
-            //ViewData["CurrentDirectory"] = enteredPath;
-            //ViewData["LinksToChildren"] = linksToChildren;
-
-            //return View();
-
-
-            ViewBag.RootPath = HttpContext.Request.Url.Scheme+"://"+HttpContext.Request.Url.Authority;
-            return View("Index");
-        }
-
-        public ActionResult CustomError(string message)
-        {
-            ViewBag.Message = message;
             return View();
         }
     }

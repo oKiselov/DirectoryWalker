@@ -3,7 +3,7 @@ CREATE TABLE tree
 (
   item_id bigint NOT NULL IDENTITY (1,1),
   parent_id bigint NOT NULL,
-  item_name text NOT NULL,
+  item_name varchar(max) NOT NULL,
   nodes_amount integer DEFAULT 0,
   CONSTRAINT item_id_pk PRIMARY KEY (item_id),
   CONSTRAINT parent_id_fk FOREIGN KEY (parent_id)
@@ -26,60 +26,121 @@ VALUES
 
 -- create function for checking current node of tree for existing of searched child with name 'searched_name'
 -- searched_id - id of current node, nodes_limit - amount of children of current node
-CREATE OR REPLACE FUNCTION tree.if_node_contains_item(IN searched_id bigint, IN searched_name text, IN nodes_limit integer)
-RETURNS TABLE(_item_id bigint, _parent_id bigint, _item_name text, _nodes_amount integer) AS
-$BODY$
+USE tree;
+GO
+CREATE FUNCTION get_childnode_by_name_and_parent_id
+(
+@searched_id AS bigint, 
+@searched_name AS varchar(max), 
+@nodes_limit AS int
+)
+RETURNS TABLE 
+AS
+RETURN
+(SELECT TOP 1 * FROM
 
-BEGIN
-RETURN QUERY 
-SELECT * FROM 
+(SELECT TOP (@nodes_limit) * FROM tree
+WHERE parent_id = (@searched_id) 
+ORDER BY item_id) 
+AS nodes_search
 
-(SELECT * FROM tree.tree
-WHERE parent_id = searched_id
-LIMIT nodes_limit) AS nodes_search
-
-WHERE item_name = searched_name
-LIMIT 1;
-
-END;
-$BODY$ LANGUAGE plpgsql;
+WHERE item_name = @searched_name
+ORDER BY item_id)
+GO
+---
 
 
 -- create function for checking full path from the head to the searched child of the tree
 -- array_pathes - array of nodes
-CREATE TYPE node_type 
-AS (item_id bigint,
+CREATE TYPE PathesArray
+AS TABLE 
+(
+Id int,
+Path varchar(max)
+);
+GO
+
+---
+USE tree;
+GO
+
+CREATE FUNCTION inspect_path_and_get_last_node
+(
+@array_pathes AS PathesArray READONLY
+)
+RETURNS @found_row TABLE 
+(
+  item_id bigint,
   parent_id bigint,
-  item_name text,
-  nodes_amount integer);
-
-
-CREATE OR REPLACE FUNCTION tree.get_node_by_combined_path(array_pathes text[])
-  RETURNS node_type AS
-$BODY$
-DECLARE found_row node_type%ROWTYPE;
+  item_name varchar(max),
+  nodes_amount integer
+)
+AS
 BEGIN
+DECLARE @counter AS int = 1,
+		@length_array_pathes AS int = 0,
+		@current_node_path AS varchar(max),
+		@ret_item_id AS bigint = 0,
+		@ret_parent_id AS bigint = 0,
+		@ret_item_name AS varchar(max),
+		@ret_nodes_amount AS int = 0;
 
-SELECT * INTO found_row FROM tree.tree
+-- find root address and assign it's id and amount of nodes to args
+SELECT TOP (1)
+@ret_item_id = item_id,
+@ret_nodes_amount = nodes_amount 
+FROM tree
 WHERE item_id = parent_id 
-AND item_name = array_pathes[1]
-LIMIT 1;
+AND item_name = (SELECT TOP 1 item_name FROM @array_pathes ORDER BY Id);
 
-FOR i IN array_lower(array_pathes, 1) .. array_upper(array_pathes, 1)
-LOOP
+-- find the length of incoming array
+SET @length_array_pathes = (SELECT COUNT(*) FROM @array_pathes);
 
-SELECT * INTO found_row FROM tree.if_node_contains_item(found_row.item_id, array_pathes[i], found_row.nodes_amount);
+-- loop over the array 
+WHILE @counter <= @length_array_pathes
+	BEGIN
 
-IF NOT FOUND THEN 
+	-- set searched path by index in array of pathes
+	SET @current_node_path = (SELECT TOP (1) Path 
+	FROM @array_pathes WHERE Id = @counter ORDER BY Id);
 
-found_row.item_id := 0;
-found_row.parent_id := 0;
-found_row.item_name := '';
-found_row.nodes_amount := 0;
+	-- assign found result to returned variable 
+	INSERT INTO @found_row
+	SELECT * FROM get_childnode_by_name_and_parent_id(@ret_item_id, @current_node_path, @ret_nodes_amount);
 
-RETURN found_row;
-END IF;
-END LOOP;
-RETURN found_row;
+	-- if not found 
+	IF ((SELECT COUNT(*) FROM @found_row) != 0)
+	-- prepare for the next iteration
+		BEGIN
+
+		SELECT TOP(1) @ret_item_id = item_id,
+				@ret_parent_id = parent_id,
+				@ret_item_name = item_name,
+				@ret_nodes_amount = nodes_amount 
+				FROM @found_row;
+
+		DELETE FROM @found_row;
+		SET @counter = @counter+1;
+		END 
+
+	ELSE
+	-- prepare for leaving the loop 
+		BEGIN
+
+		DELETE FROM @found_row;
+		SET @ret_item_id  = 0;
+		SET @ret_parent_id  = 0;
+		SET @ret_item_name = '';
+		SET @ret_nodes_amount = 0;
+
+		SET @counter = @length_array_pathes + 1;
+		END
+
+	END
+
+INSERT INTO @found_row (item_id, parent_id, item_name, nodes_amount)
+VALUES (@ret_item_id, @ret_parent_id, @ret_item_name, @ret_nodes_amount);
+
+RETURN;
 END;
-$BODY$ LANGUAGE plpgsql;
+GO
