@@ -1,4 +1,6 @@
 -- table creation
+USE tree;
+GO
 CREATE TABLE tree
 (
   item_id bigint NOT NULL IDENTITY (1,1),
@@ -12,6 +14,8 @@ CREATE TABLE tree
 
 
 -- populate the table 
+USE tree;
+GO
 INSERT INTO tree (parent_id, item_name, nodes_amount) 
 VALUES 
 (1, 'Creating Digital Images', 4),
@@ -52,6 +56,8 @@ GO
 
 -- create function for checking full path from the head to the searched child of the tree
 -- array_pathes - array of nodes
+USE tree;
+GO
 CREATE TYPE PathesArray
 AS TABLE 
 (
