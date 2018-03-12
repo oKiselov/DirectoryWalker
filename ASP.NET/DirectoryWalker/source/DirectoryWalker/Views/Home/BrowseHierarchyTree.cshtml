@@ -1,0 +1,22 @@
+﻿
+@{
+    ViewBag.Title = "BrowseHierarchyTree";
+}
+
+<div class="container-fluid">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <h2>Directory: @ViewData["CurrentDirectory"]</h2>
+        <h2>consist of @(((IEnumerable<DirectoryWalker.Models.LinkToChild>)ViewData["LinksToChildren"]).Count()) subdirectories:</h2>
+
+        @foreach (DirectoryWalker.Models.LinkToChild linkToChild in (IEnumerable<DirectoryWalker.Models.LinkToChild>)ViewData["LinksToChildren"])
+        {
+            <p>
+                <a href="@linkToChild.FullPath">@linkToChild.Name</a>
+            </p>
+        }
+    </div>
+    <div>
+        <a href=@ViewData["Home"]>Go to the main view with root directory</a>
+    </div>
+</div>
+
